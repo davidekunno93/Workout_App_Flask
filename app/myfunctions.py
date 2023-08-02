@@ -38,6 +38,44 @@ def getExercise(page):
 
 # print(getExercise(1))
 
+def top3(arr):
+        occurs = {}
+        mx = 0
+        for muscle in arr:
+            if muscle not in occurs:
+                occurs[muscle] = 1
+                mx = max(mx, 1)
+            else:
+                occurs[muscle] += 1
+                mx = max(mx, occurs[muscle])
+        result = []
+        for k, v in occurs.items():
+            if v == mx:
+                result.append(k)
+            if len(result) == 3:
+                return result
+        return result
+
+
+def listToText(arr):
+    "string objects only - takes list of string objects and formats them to 'a, b, c and d' style text list"
+    if len(arr) == 1:
+        return arr[0].capitalize()
+
+    text_list = ", ".join(word.capitalize() for word in arr[:-1])
+    text_list += f" and {arr[-1].capitalize()}"
+
+    return text_list
+
+def dashList(arr):
+    "string or int or mixed list - converted to dash list"
+    if len(arr) == 1:
+        return arr[0]
+    dash_list = "-".join([str(item) for item in arr])
+    return dash_list
+
+
+
 extra_exercies = [{'name': 'Flutter Kicks', 'type': 'strength', 'muscle': 'glutes', 'equipment': 'None', 'difficulty': 'intermediate', 'instructions': 'On a flat bench lie facedown with the hips on the edge of the bench, the legs straight with toes high off the floor and with the arms on top of the bench holding on to the front edge. Squeeze your glutes and hamstrings and straighten the legs until they are level with the hips. This will be your starting position. Start the movement by lifting the left leg higher than the right leg. Then lower the left leg as you lift the right leg. Continue alternating in this manner (as though you are doing a flutter kick in water) until you have done the recommended amount of repetitions for each leg. Make sure that you keep a controlled movement at all times. Tip: You will breathe normally as you perform this movement.  Variations: As you get more advanced you can use ankle weights.'},
 {'name': 'Superman', 'type': 'stretching', 'muscle': 'lower_back', 'equipment': 'body_only', 'difficulty': 'intermediate', 'instructions': 'To begin, lie straight and face down on the floor or exercise mat. Your arms should be fully extended in front of you. This is the starting position. Simultaneously raise your arms, legs, and chest off of the floor and hold this contraction for 2 seconds. Tip: Squeeze your lower back to get the best results from this exercise. Remember to exhale during this movement. Note: When holding the contracted position, you should look like superman when he is flying. Slowly begin to lower your arms, legs and chest back down to the starting position while inhaling. Repeat for the recommended amount of repetitions prescribed in your program.  Variations: You can also perform this exercise using one arm and leg at a time. Simply elevating your left leg, arm and side of your chest and do the same with the right side.'},
 {'name': 'Glute Kickback', 'type': 'strength', 'muscle': 'glutes', 'equipment': 'body_only', 'difficulty': 'beginner', 'instructions': 'Kneel on the floor or an exercise mat and bend at the waist with your arms extended in front of you (perpendicular to the torso) in order to get into a kneeling push-up position but with the arms spaced at shoulder width. Your head should be looking forward and the bend of the knees should create a 90-degree angle between the hamstrings and the calves. This will be your starting position. As you exhale, lift up your right leg until the hamstrings are in line with the back while maintaining the 90-degree angle bend. Contract the glutes throughout this movement and hold the contraction at the top for a second. Tip: At the end of the movement the upper leg should be parallel to the floor while the calf should be perpendicular to it. Go back to the initial position as you inhale and now repeat with the left leg. Continue to alternate legs until all of the recommended repetitions have been performed.  Variations: For this exercise you can also perform all of the repetitions with one leg first and then the other one. Additionally, you can also add ankle weights.'},

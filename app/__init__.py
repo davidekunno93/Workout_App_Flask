@@ -14,6 +14,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 CORS(app, supports_credentials=True)
 
+
 # this line of code - directs the flask app to routes for web routes
 from . import routes
 
@@ -33,4 +34,4 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 login.init_app(app)
-# login.login_view = ''
+login.login_view = 'index'
