@@ -1,7 +1,7 @@
 # importing app to route different web directories
 from app import app
 from .models import Exercise, db, User, Workout, Pexercise
-from .myfunctions import getExercise, extra_exercies, top3, listToText, dashList
+from .myfunctions import getExercise, extra_exercies, top4, listToText, dashList
 from flask import request, render_template
 from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user, login_required
@@ -124,7 +124,7 @@ def create_workout():
     status = "OK"
     data = request.get_json()
 
-    if not data[-1]["info"]["wo_name"]:
+    if not data[-1]["info"]["name"]:
         return {
             "status" : status,
             "message" : "No name",
@@ -138,7 +138,9 @@ def create_workout():
     #     names.append(obj["name"])
     #     muscles.append(obj["muscle"])
 
+    # ex_names_dash = "*".join(names)
     # print(names)
+    # print(ex_names_dash)
     # print(listToText(list(set(names))))
     # # print(str(names))
 
@@ -222,8 +224,8 @@ def create_workout():
                 pass
         if len(ints_final) == 0:
             body_only = True
-            rating = "medium"
-            avg_score = 50
+            rating = "bodyOnly"
+            avg_score = 0
         else:
             avg_score = score//(len(ints_final))
             if avg_score < 45:
@@ -241,7 +243,7 @@ def create_workout():
     intensity = intensityScore(intensities)
     # print(names, muscles, t_reps, endurance, intensity, sep="\n")
     
-    main_muscles = top3(muscles)
+    main_muscles = top4(muscles)
 
     # add new attributes to workout in the info section
     data[-1]["info"]["bodyOnly"] = intensity["bodyOnly"]
@@ -259,6 +261,7 @@ def create_workout():
     muscles_text = (listToText(list(set(muscles))))
     main_muscles_text = (listToText(main_muscles))
     pex_list_dash = dashList(pex_list)
+    ex_names_dash = "*".join(names)
 
     name_dup = Workout.query.filter_by(wo_name=data[-1]["info"]["name"]).first()
     if name_dup:
@@ -269,7 +272,7 @@ def create_workout():
         }
 
     # workout inputs = Workout(user_id, wo_name, wo_desc, exercises, ex_names, muscle_groups, main_muscles, total_reps, intScore, intRating, endScore, circuits)
-    workout = Workout(user_id, data[-1]["info"]["name"], data[-1]["info"]["desc"], pex_list_dash, names_text, muscles_text, main_muscles_text, t_reps, intensity["intScore"], intensity["intRating"], endurance, data[-1]["info"]["circuits"])
+    workout = Workout(user_id, data[-1]["info"]["name"], data[-1]["info"]["desc"], pex_list_dash, names_text, ex_names_dash, muscles_text, main_muscles_text, t_reps, intensity["intScore"], intensity["intRating"], endurance, data[-1]["info"]["circuits"])
     # dup query returns None if no match
     dup = Workout.query.filter_by(pexercise_ids=pex_list_dash).first()
     if dup:
@@ -280,10 +283,12 @@ def create_workout():
         }
     
     workout.save_workout()
-
     
-    print(data)
-    message = "Good to go!"
+    new_workout = Workout.query.filter_by(pexercise_ids=pex_list_dash).first()
+    data = new_workout.to_dict()
+
+    # print(data)
+    message = "successful"
     return {
         "status" : status,
         "data" : data,

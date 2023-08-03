@@ -105,3 +105,25 @@ def exercise_search():
         "status" : "OK",
         "data" : exercises
     }
+
+@api.route('/search-workout', methods=["POST"])
+def search_workout():
+
+    status = "OK"
+    data = request.get_json()
+    print(data)
+
+    muscles = []
+    for m in data:
+        muscles.append(m.strip().lower())
+    
+    print(muscles)
+
+    for m in muscles:
+        Workout.query.filter_by
+
+    return {
+        "status" : status,
+        "message" : "got it!",
+        "data" : "coming soon"
+    }

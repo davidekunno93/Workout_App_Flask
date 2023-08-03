@@ -137,6 +137,7 @@ class Workout(db.Model):
     completedby_user_ids = db.Column(db.String)
     pexercise_ids = db.Column(db.String, nullable=False, unique=True)
     ex_names = db.Column(db.String)
+    ex_names_dash = db.Column(db.String)
     muscle_groups = db.Column(db.String)
     main_muscles = db.Column(db.String)
     total_reps = db.Column(db.Integer)
@@ -165,13 +166,14 @@ class Workout(db.Model):
             )
 
     
-    def __init__(self, user_id, wo_name, wo_desc, pexercise_ids, ex_names, muscle_groups, main_muscles, total_reps, intScore, intRating, endScore, circuits, completedby = [], avg_rating=0, num_of_ratings=0, num_of_favs=0):
+    def __init__(self, user_id, wo_name, wo_desc, pexercise_ids, ex_names, ex_names_dash, muscle_groups, main_muscles, total_reps, intScore, intRating, endScore, circuits, completedby = [], avg_rating=0, num_of_ratings=0, num_of_favs=0):
         self.createdby_user_id = user_id
         self.wo_name = wo_name
         self.wo_desc = wo_desc
         self.completedby_user_ids = completedby
         self.pexercise_ids = pexercise_ids
         self.ex_names = ex_names
+        self.ex_names_dash = ex_names_dash
         self.muscle_groups = muscle_groups
         self.main_muscles = main_muscles
         self.total_reps = total_reps
@@ -208,6 +210,7 @@ class Workout(db.Model):
         d["completedby_user_ids"] = self.completedby_user_ids
         d["pexercise_ids"] = self.pexercise_ids
         d["ex_names"] = self.ex_names
+        d["ex_names_dash"] = self.ex_names_dash
         d["muscle_groups"] = self.muscle_groups
         d["main_muscles"] = self.main_muscles
         d["totalReps"] = self.total_reps

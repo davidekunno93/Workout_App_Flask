@@ -38,7 +38,7 @@ def getExercise(page):
 
 # print(getExercise(1))
 
-def top3(arr):
+def top4(arr):
         occurs = {}
         mx = 0
         for muscle in arr:
@@ -52,7 +52,12 @@ def top3(arr):
         for k, v in occurs.items():
             if v == mx:
                 result.append(k)
-            if len(result) == 3:
+            if len(result) == 4:
+                return result
+        for k, v in occurs.items():
+            if v == mx-1:
+                result.append(k)    
+            if len(result) == 4:
                 return result
         return result
 
