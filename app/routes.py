@@ -339,11 +339,13 @@ def addToFavorites():
 
     workouts = Workout.query.order_by(Workout.time_created.desc()).all()
     data = [w.to_dict() for w in workouts]
+    data2 = workout.to_dict()
     
     return {
         "status": "OK",
         "message" : "Complete",
-        "data" : data
+        "data" : data,
+        "data2" : data2
     }
 
 @app.route("/remove-from-favorites", methods=["POST"])
@@ -375,10 +377,12 @@ def removeFromFavorites():
 
     workouts = Workout.query.order_by(Workout.time_created.desc()).all()
     data = [w.to_dict() for w in workouts]
+    data2 = workout.to_dict()
     return {
         "status": "OK",
         "message" : "Complete",
-        "data" : data
+        "data" : data,
+        "data2" : data2
     }
 
 
