@@ -74,7 +74,7 @@ def login():
         user = un_em_match
         login_user(user)
         print("user logged in")
-        user_dict = user.to_dict()
+        user_dict = user.to_dict_secure()
         
         return {
             "status" : status,
@@ -117,6 +117,20 @@ def signin_check():
                 "status" : status,
                 "data" : data,
             }
+    
+@app.route('/reload-user', methods=["POST"])
+def reload_user():
+
+    data = request.get_json()
+    print(data)
+
+    user_id = data["user_id"]
+    user = User.query.filter_by(id=user_id).first()
+    print(user)
+
+    data = user.to_dict_secure()
+
+    return data
 
 @app.route('/create-workout', methods=["POST"])
 def create_workout():
@@ -296,6 +310,93 @@ def create_workout():
     }
 
 
+@app.route("/add-to-favorites", methods=["POST"])
+def addToFavorites():
+
+    data = request.get_json()
+
+    print(data)
+
+    # return "check"
+
+    w_id = data["workout_id"]
+    u_id = data["user_id"]
+
+    workout = Workout.query.filter_by(id=w_id).first()
+    print(workout)
+    user = User.query.filter_by(id=u_id).first()
+    print(user)
+
+    print(user.favorited)
+    if workout not in user.favorited:
+        print("not in user favorited")
+        workout.add_to_favorites(user)
+
+    if workout in user.favorited:
+        print("now in user favorited")
+
+    print(user.favorited)
+
+    workouts = Workout.query.order_by(Workout.time_created.desc()).all()
+    data = [w.to_dict() for w in workouts]
+    
+    return {
+        "status": "OK",
+        "message" : "Complete",
+        "data" : data
+    }
+
+@app.route("/remove-from-favorites", methods=["POST"])
+def removeFromFavorites():
+
+    data = request.get_json()
+
+    print(data)
+
+    # return "check"
+
+    w_id = data["workout_id"]
+    u_id = data["user_id"]
+
+    workout = Workout.query.filter_by(id=w_id).first()
+    print(workout)
+    user = User.query.filter_by(id=u_id).first()
+    print(user)
+
+    print(user.favorited)
+    if workout in user.favorited:
+        print("in user favorited")
+        workout.remove_from_favorites(user)
+
+    if workout not in user.favorited:
+        print("no longer in user favorited")
+
+    # print(user.favorited)
+
+    workouts = Workout.query.order_by(Workout.time_created.desc()).all()
+    data = [w.to_dict() for w in workouts]
+    return {
+        "status": "OK",
+        "message" : "Complete",
+        "data" : data
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -316,6 +417,20 @@ def update_workout(password):
     # commit changes to database
     
     return "Under construction"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

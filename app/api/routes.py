@@ -1,5 +1,6 @@
 from flask import Blueprint, request
-from ..models import Exercise, Workout, User
+from ..models import Exercise, Workout, User, Pexercise
+from sqlalchemy.orm import aliased
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -20,7 +21,7 @@ def exercise_database():
     
 @api.get('/workout-database')
 def workout_database():
-    workouts = Workout.query.all()
+    workouts = Workout.query.order_by(Workout.time_created).all()
     database = [w.to_dict() for w in workouts]
     if database:
         return {
@@ -47,6 +48,20 @@ def users_database():
             'data' : 'Not Found',
             'status' : 404
         }
+    
+@api.get('/pexercise-database')
+def pexercise_database():
+
+    pexercises = Pexercise.query.all() 
+    data = [p.to_dict() for p in pexercises]
+
+    return {
+        "status": "OK",
+        "data": data
+    }
+
+
+
 
 @api.route('/exercise-search', methods=["POST"])
 def exercise_search():
@@ -114,16 +129,95 @@ def search_workout():
     print(data)
 
     muscles = []
-    for m in data:
-        muscles.append(m.strip().lower())
-    
+    for m in data["muscles"]:
+        muscles.append(m.strip().title())
+
     print(muscles)
 
+    combos = []
+    c = []
+
+    # make a list of up to 3 muscle groups from entry muscles
     for m in muscles:
-        Workout.query.filter_by
+        if len(c) < 3:
+            c.append(m)
+
+    combos.append(c)
+
+    # if combo length is 1 - pass, if 2 - reverse and add to combos, if 3 - 1,3,2 / 2,3,1 / 2,1,3 / 3,2,1 / 3,1,2 add all to combos
+    if len(c) == 1:
+        pass
+    elif len(c) == 2:
+        combos.append(list(reversed(c)))
+    elif len(c) == 3:
+        combos.append([c[0], c[2], c[1]])
+        combos.append([c[1], c[2], c[0]])
+        combos.append([c[1], c[0], c[2]])
+        combos.append([c[2], c[1], c[0]])
+        combos.append([c[2], c[0], c[1]])
+    
+    queries = []
+    for combo in combos:
+        query = "%".join(combo)
+        queries.append("%"+query+"%")
+    
+    # print(queries, "<--COMBO METHOD")
+
+    # join = "%"
+    # l = 0
+    # for m in muscles:
+    #     if l < 3:
+    #         join += m+"%"
+    #         l += 1
+    # print(join, "<--JOIN METHOD")
+
+    # print(data["circuits"])
+
+    workouts = []
+    for query in queries:
+        matches = Workout.query.filter(Workout.muscle_groups.like(query)).all()
+        for match in matches:
+            if match not in workouts:
+                workouts.append(match)
+    
+    print(workouts)
+    Workout.query.filter_by(intRating=data["intensity"])
+
+    # print(workouts, "<--COMBO WOS")
+    print(data["circuits"], data["intensity"])    
+
+    workouts2 = []
+    for m in muscles:
+        if not data["circuits"] and not data["intensity"]:
+            print("lane")
+            subquery = Workout.query.filter(Workout.muscle_groups.like(f"%{m}%")).all()
+        elif data["circuits"] and not data["intensity"]:
+            subquery = Workout.query.filter(Workout.muscle_groups.like(f"%{m}%"), Workout.circuits > 1).all()
+        elif not data["circuits"] and data["intensity"]:
+            subquery = Workout.query.filter(Workout.muscle_groups.like(f"%{m}%"), Workout.intRating.like(data["intensity"])).all()
+        elif data["circuits"] and data["intensity"]:
+            subquery = Workout.query.filter(Workout.muscle_groups.like(f"%{m}%"), Workout.circuits > 1, Workout.intRating.like(data["intensity"])).all()
+
+        for s in subquery:
+            if s not in workouts2:
+                workouts2.append(s)
+    print(workouts2)
+    finalworkouts = []
+    for wo in workouts:
+        if wo in workouts2:
+            finalworkouts.append(wo)
+
+    for wo in workouts2:
+        if wo not in finalworkouts:
+            finalworkouts.append(wo)
+    
+    print(finalworkouts)
+
+    data = [wo.to_dict() for wo in finalworkouts]
+    # print(data)
 
     return {
         "status" : status,
         "message" : "got it!",
-        "data" : "coming soon"
+        "data" : data
     }

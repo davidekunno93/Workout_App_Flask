@@ -2,6 +2,7 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
+from flask import jsonify
 
 db = SQLAlchemy()
 
@@ -48,6 +49,11 @@ class User(db.Model, UserMixin):
         d["username"] = self.username
         d["sex"] = self.sex
         d["email"] = self.email
+        d["favorited"] = []
+        if len(self.favorited) > 0:
+            for wo in self.favorited:
+                w = wo.id
+                d["favorited"].append(w)
         return d
 
 class Exercise(db.Model):
@@ -127,7 +133,22 @@ class Pexercise(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    
+    def to_dict(self):
+        d = {}
+        d["id"] = self.id
+        d["reps"] = self.reps
+        d["sets"] = self.sets
+        d["intensity"] = self.intensity
+
+        exercise = Exercise.query.get(self.exercise_id)
+        d["ex_id"] = self.exercise_id
+        d["ex_name"] = exercise.name
+        d["ex_type"] = exercise.ex_type
+        d["ex_muscle"] = exercise.muscle
+        d["ex_equipment"] = exercise.equipment
+        d["ex_difficulty"] = exercise.difficulty
+        d["ex_instructions"] = exercise.instructions
+        return d
 
 class Workout(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -200,9 +221,20 @@ class Workout(db.Model):
         self.num_of_ratings += 1
         db.session.commit()
 
+    def add_to_favorites(self, user):
+        self.favorited.append(user)
+        self.num_of_favs += 1
+        db.session.commit()
+
+    def remove_from_favorites(self, user):
+        self.favorited.remove(user)
+        self.num_of_favs -= 1
+        db.session.commit()
+
     def to_dict(self):
         d = {}
         user = User.query.get(self.createdby_user_id)
+        d["id"] = self.id
         d["createdby_id"] = self.createdby_user_id
         d["createdby_un"] = user.username
         d["wo_name"] = self.wo_name
